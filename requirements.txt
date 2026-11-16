@@ -1,0 +1,36 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# ---------------------------------------------------------------------------
+# SmartPark Maroc - pinned Python dependencies
+# Tested with Python 3.11 on an Intel CPU / Ubuntu Linux.
+#
+# IMPORTANT:
+#   The +cpu PyTorch wheels below are installed from the official PyTorch CPU
+#   index. They do NOT install CUDA or NVIDIA libraries.
+#   Install everything with:  pip install -r requirements.txt
+# ---------------------------------------------------------------------------
+
+# Deep learning (CPU only)
+torch==2.6.0+cpu
+torchvision==0.21.0+cpu
+
+# Computer vision
+ultralytics==8.3.253
+opencv-python==4.12.0.88
+numpy==2.2.6
+Pillow==11.3.0
+
+# Data handling and plotting
+pandas==2.2.3
+matplotlib==3.10.3
+
+# Notebooks
+jupyterlab==4.6.6
+
+# Web API and demo UI
+fastapi==0.163.1
+uvicorn==0.54.0
+streamlit==1.67.0
+
+# Testing
+pytest==9.2.0
