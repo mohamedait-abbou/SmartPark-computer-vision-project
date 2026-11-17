@@ -1,233 +1,318 @@
-# SmartPark Maroc
+<p align="center">
+  <img src="assets/banner.svg" alt="SmartPark Maroc - Moroccan license plate detection and OCR" width="100%">
+</p>
 
-AI-powered Moroccan parking management: licence-plate **detection** (YOLO)
-and **character recognition** (OCR).
+<p align="center">
+  <a href="#quickstart">Quickstart</a> &middot;
+  <a href="#architecture">Architecture</a> &middot;
+  <a href="#dataset">Dataset</a> &middot;
+  <a href="#results">Results</a> &middot;
+  <a href="#roadmap">Roadmap</a>
+</p>
 
-This repository contains the local development environment, starter code,
-tests and documentation. It is optimised for a **CPU-only laptop** with
-8 GB RAM (HP EliteBook 840 G3, Intel Core i5-6300U).
+<p align="center">
+  <img alt="Status" src="https://img.shields.io/badge/status-work%20in%20progress-f59e0b">
+  <img alt="Python" src="https://img.shields.io/badge/python-3.11-3776ab">
+  <img alt="PyTorch" src="https://img.shields.io/badge/pytorch-2.6.0%2Bcpu-ee4c2c">
+  <img alt="YOLO" src="https://img.shields.io/badge/YOLO-11n-00b894">
+  <img alt="Local tests" src="https://img.shields.io/badge/local%20tests-12%20passing-22c55e">
+  <img alt="License" src="https://img.shields.io/badge/license-TBD-94a3b8">
+</p>
+
+> **Project status: work in progress.**
+> The development scaffold and the dataset pipeline are ready. The detector
+> has **not been trained yet**, so this README intentionally reports **no
+> accuracy numbers**. Real metrics, charts, and a demo GIF will be added after
+> the first training and validation run.
 
 ---
 
-## Project location
+## What is SmartPark Maroc?
+
+SmartPark Maroc is a computer-vision system for Moroccan parking entrances.
+It finds a vehicle's licence plate in a photo and recognises its characters,
+with a **CPU-first** design that runs on modest hardware.
 
 ```text
-/home/mhd/projects/cv_project/SmartPark-Maroc
+image -> plate detector -> plate crop -> OCR -> plate text
 ```
 
-## Machine profile and design choices
+The project is built in two stages:
 
-| Item | Value |
-| --- | --- |
-| OS | Ubuntu 26.04.1 LTS |
-| CPU | Intel Core i5-6300U (4 threads) |
-| RAM | 8 GB (7.1 GiB usable) |
-| GPU | Intel integrated graphics (no CUDA) |
-| Python | 3.11 (Conda environment `smartpark`) |
-| PyTorch | `2.6.0+cpu` from the official PyTorch CPU index |
-| Detection | Ultralytics YOLO, CPU inference |
+1. **Detection** - locate the plate with YOLO11n.
+2. **Recognition** - read the plate text with OCR (next milestone).
 
-Why CPU-only PyTorch? The default Linux PyPI wheel pulls in large NVIDIA
-CUDA libraries that cannot be used on this laptop. The `+cpu` wheel avoids
-those downloads and saves both disk space and RAM.
+It is also a learning project: every design choice is documented, tested, and
+explained in plain language.
+
+---
+
+## Why this project?
+
+Moroccan plates mix digits, Arabic letters, and a region code. Generic OCR
+engines often fail on them because of cursive script, plate fonts, dirt,
+glare, and camera angles.
+
+A parking system needs three things at the same time:
+
+- **accuracy** on real, imperfect camera images,
+- **low latency** at the entrance,
+- **privacy** - plate images are personal data.
+
+This repository starts with the detection stage and a reproducible pipeline,
+so the recognition stage can be added without rebuilding the whole system.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Camera or image upload] --> B[YOLO11n detector]
+    B --> C[Plate crop]
+    C --> D[OCR]
+    D --> E[Text validation]
+    E --> F[Streamlit UI or API]
+
+    classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef pending fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f,stroke-dasharray: 6 4;
+    class A,B,C done;
+    class D,E,F pending;
+```
+
+Green = implemented. Amber = planned. The current codebase covers input,
+YOLO inference, cropping, and the demo UI. OCR is an interface with
+preprocessing, ready for a recogniser plug-in.
+
+---
+
+## Current status
+
+| Area | Status | Evidence |
+|---|---|---|
+| Environment | Done | Python 3.11, PyTorch `2.6.0+cpu`, CPU-only, 12 local tests pass |
+| Dataset | Done | 1,596 image/label pairs validated, 1,277 train / 319 validation |
+| Detector | Pending | Training not started yet |
+| OCR | Pending | Preprocessing and plug-in interface only |
+| App | Partial | Upload and preview work; detection needs model weights |
+| Documentation | In progress | Setup guide and environment notebook available |
+
+No model weights or datasets are committed. See [Data and Git rules](docs/SETUP.md#6-data-and-git-rules).
+
+---
+
+## Dataset
+
+The local dataset contains **1,596 Moroccan plate images**, each with one YOLO
+label:
+
+```text
+images/train/IMG_0264.jpg
+labels/train/IMG_0264.txt
+
+0 0.554688 0.544434 0.580729 0.110352
+```
+
+| Property | Value |
+|---|---|
+| Classes | 1 (`license_plate`) |
+| Boxes per image | 1 |
+| Train / validation | 1,277 / 319 (80/20, seed 42) |
+| Label format | YOLO normalized `class x_center y_center width height` |
+| Validation errors | 0 |
+
+Expected local layout:
+
+```text
+data/raw/plates/
+├── images/train/
+├── images/val/
+├── labels/train/
+├── labels/val/
+└── data.yaml
+```
+
+The images are **not** published in this repository because plate images are
+personal data and the dataset licence still needs to be confirmed.
+
+---
+
+## Results
+
+> **Pending.** No training run has been completed, so no metrics are claimed.
+
+| Metric | Value | Notes |
+|---|---|---|
+| Precision | Pending | After training |
+| Recall | Pending | After training |
+| mAP50 | Pending | After training |
+| mAP50-95 | Pending | After training |
+| CPU latency | Pending | Measured after export |
+
+Evaluation protocol:
+
+- held-out validation split only,
+- precision, recall, mAP50, mAP50-95,
+- per-failure analysis (night, blur, angle, occlusion),
+- latency measured on the target CPU,
+- no tuning on the validation set,
+- real numbers only, including failures.
+
+---
+
+## Quickstart
+
+```bash
+git clone git@github.com:mohamedait-abbou/SmartPark-computer-vision-project.git
+cd SmartPark-computer-vision-project
+
+conda create -y -n smartpark python=3.11 pip --no-default-packages
+conda activate smartpark
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+pytest
+streamlit run app/app.py
+```
+
+The app opens at <http://localhost:8501>. Upload and preview work immediately.
+Detection requires weights at `models/plate_detector.pt`; they are never
+downloaded automatically.
+
+Detailed environment notes and troubleshooting: [docs/SETUP.md](docs/SETUP.md).
+First experiment without data or weights: [notebooks/01_environment_check.ipynb](notebooks/01_environment_check.ipynb).
+
+---
+
+## Training
+
+The detector is a single-class YOLO11n model. CPU command for this laptop:
+
+```bash
+yolo detect train \
+  data=data/raw/plates/data.yaml \
+  model=yolo11n.pt \
+  epochs=50 \
+  imgsz=416 \
+  batch=2 \
+  device=cpu
+```
+
+On a free Colab T4 GPU, the same run uses `imgsz=640`, `batch=16`,
+`device=0`, and `patience=15`. After training, copy the best checkpoint:
+
+```bash
+cp runs/detect/train/weights/best.pt models/plate_detector.pt
+```
+
+Why YOLO11n? It is the smallest YOLO11 variant: fast enough for CPU
+inference, small enough to train on free GPU hardware, and sufficient because
+the plates in this dataset are large.
 
 ---
 
 ## Project structure
 
+<details>
+<summary>Show the repository layout</summary>
+
 ```text
 SmartPark-Maroc/
-├── app/                  # Streamlit demo UI
-│   └── app.py
+├── app/
+│   └── app.py                 # Streamlit demo
+├── assets/
+│   └── banner.svg             # README artwork
 ├── data/
-│   ├── raw/              # original images (never committed)
-│   └── processed/        # resized/cropped images (never committed)
-├── docs/                 # project documentation
-├── models/               # model weights (never committed)
-├── notebooks/            # Jupyter experiments
+│   ├── raw/                   # original data (ignored by Git)
+│   └── processed/             # derived data (ignored by Git)
+├── docs/
+│   ├── SETUP.md               # full environment guide
+│   └── ...                    # dataset notes and local learning material
+├── models/                    # weights (ignored by Git)
+├── notebooks/
 │   └── 01_environment_check.ipynb
 ├── src/
-│   ├── detection/        # YOLO plate detector wrapper
-│   │   └── detector.py
-│   ├── processing/       # reusable OpenCV helpers
-│   │   └── image_utils.py
-│   └── recognition/      # OCR preprocessing + pluggable recogniser
-│       └── ocr.py
+│   ├── detection/detector.py  # YOLO wrapper, CPU only
+│   ├── processing/image_utils.py
+│   └── recognition/ocr.py     # preprocessing + recogniser interface
 ├── tests/
 │   └── test_environment.py
-├── .env.example
-├── .gitignore
-├── pytest.ini
-├── README.md
-└── requirements.txt
+├── requirements.txt
+└── README.md
 ```
+
+</details>
+
+Key files:
+
+- [src/detection/detector.py](src/detection/detector.py) - lazy-loading YOLO wrapper.
+- [src/processing/image_utils.py](src/processing/image_utils.py) - OpenCV helpers.
+- [src/recognition/ocr.py](src/recognition/ocr.py) - OCR preprocessing and plug-in point.
+- [app/app.py](app/app.py) - Streamlit interface.
+- [tests/test_environment.py](tests/test_environment.py) - environment and behaviour tests.
 
 ---
 
-## 1. Activate the environment
+## Design principles
 
-```bash
-conda activate smartpark
-python --version        # expected: Python 3.11.x
-```
-
-If `conda activate` is not available in your shell, load Conda first:
-
-```bash
-source ~/anaconda3/etc/profile.d/conda.sh
-conda activate smartpark
-```
-
-> Your Anaconda installation prints plugin warnings
-> (`conda-anaconda-telemetry`, `repo`, `conda-anaconda-tos`) because some
-> plugins are older than Conda itself. These warnings are **pre-existing**
-> and harmless; environment creation and activation still work.
+| Principle | How it is applied |
+|---|---|
+| CPU-first | Inference defaults to `device="cpu"`; CUDA is rejected on purpose |
+| No hidden downloads | Model weights are never fetched automatically |
+| Privacy by default | Datasets and plate images are excluded from Git |
+| Reproducibility | Pinned dependencies, fixed seed, scripted data preparation |
+| Honesty | No metrics are published before a real validation run |
+| Modularity | Detector, OCR, and UI can be replaced independently |
 
 ---
 
-## 2. Install or reinstall dependencies
+## Roadmap
 
-Everything is already installed. To reproduce the environment on another
-machine:
-
-```bash
-conda create -y -n smartpark python=3.11 pip --no-default-packages
-conda activate smartpark
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-`requirements.txt` points pip at `https://download.pytorch.org/whl/cpu`
-for `torch==2.6.0+cpu` and `torchvision==0.21.0+cpu`. Do not replace these
-with plain `torch` from PyPI: that wheel would download CUDA/NVIDIA
-libraries.
+- [x] CPU-only Python environment
+- [x] Project scaffold, tests, and Streamlit preview
+- [x] Dataset validation and YOLO train/validation split
+- [x] Documented setup and troubleshooting
+- [ ] Train YOLO11n and publish real metrics
+- [ ] Add loss, mAP, PR, and confusion-matrix charts
+- [ ] Record a short demo GIF
+- [ ] OCR baseline on Moroccan plate crops
+- [ ] FastAPI service and Docker image
+- [ ] `v1.0.0` release with model weights attached
 
 ---
 
-## 3. Verify the installation
+## Limitations
 
-```bash
-conda activate smartpark
-python -c "import sys; print(sys.version)"
-python -c "import torch; print(torch.__version__, 'CUDA:', torch.cuda.is_available())"
-python -c "import cv2; print('OpenCV', cv2.__version__)"
-python -c "from ultralytics import YOLO; import ultralytics; print('Ultralytics', ultralytics.__version__)"
-pytest
-```
-
-Expected results:
-
-- Python is **3.11.x**.
-- PyTorch version ends with **`+cpu`**.
-- `torch.cuda.is_available()` prints **`False`**.
-- All tests pass.
+- The detector is not trained yet; no accuracy claim is made.
+- Single class (`license_plate`) and a single data source.
+- OCR is not implemented; only the interface and preprocessing exist.
+- The demo targets CPU inference, not production throughput.
+- Dataset source and licence must be documented before public redistribution.
+- No production API, authentication, database, or monitoring yet.
 
 ---
 
-## 4. First experiment
+## Documentation
 
-The environment-check notebook works without any dataset or model weights:
+- [Setup and troubleshooting](docs/SETUP.md)
+- [Environment notebook](notebooks/01_environment_check.ipynb)
+- [Detector wrapper](src/detection/detector.py)
+- [OCR interface](src/recognition/ocr.py)
+- [Tests](tests/test_environment.py)
 
-```bash
-conda activate smartpark
-cd ~/projects/cv_project/SmartPark-Maroc
-jupyter lab notebooks/01_environment_check.ipynb
-```
-
-Run all cells. It prints versions, confirms that CUDA is disabled and
-exercises the image-processing utilities on a synthetic image.
-
-You can also launch the Streamlit preview:
-
-```bash
-conda activate smartpark
-cd ~/projects/cv_project/SmartPark-Maroc
-streamlit run app/app.py
-```
-
-Then open <http://localhost:8501> and upload a vehicle photo. Image preview
-and preprocessing work immediately; detection needs model weights (below).
+Learning notes and course material are kept local until reviewed for
+publication.
 
 ---
 
-## 5. Adding AI models (manual step)
+## License
 
-No model weights are included or downloaded automatically.
-
-### Plate detector
-
-1. Train or obtain a YOLO model that detects licence plates.
-2. Copy the weights to `models/plate_detector.pt`.
-3. Pass the path in the app sidebar or to `PlateDetector(model_path=...)`.
-
-The detector always runs on CPU and refuses `cuda` devices on purpose.
-
-### OCR recogniser
-
-`src/recognition/ocr.py` contains the preprocessing pipeline and a clean
-plug-in point. No OCR engine is bundled. To use Tesseract, EasyOCR,
-PaddleOCR or a custom CRNN later, pass a callable:
-
-```python
-from src.recognition.ocr import PlateOCR
-
-def my_recognizer(prepared_gray_image):
-    # Call your OCR engine here and return the raw text.
-    return "12345-A-6"
-
-ocr = PlateOCR(recognizer=my_recognizer)
-text = ocr.recognize(plate_crop)
-```
+No code licence has been selected yet. The dataset and model weights are not
+redistributed in this repository. Add a code licence and confirm the dataset
+licence before reusing or redistributing any part of this project.
 
 ---
 
-## 6. Data and Git rules
-
-The `.gitignore` protects the repository. Never commit:
-
-- datasets in `data/raw/` or `data/processed/`;
-- model weights (`*.pt`, `*.pth`, `*.onnx`, …) or `models/*`;
-- virtual/conda environments;
-- `.env`, API keys or any secrets;
-- notebook checkpoints, logs and coverage output.
-
-Keep small sample images only if they are legally shareable and contain no
-personal data. Moroccan licence plates are personal data: anonymise images
-before sharing them.
-
-Useful Git checks:
-
-```bash
-git status
-git check-ignore -v models/plate_detector.pt
-git check-ignore -v .env
-```
-
----
-
-## 7. Performance tips for 8 GB RAM / Intel CPU
-
-- Run **one** heavy tool at a time (Jupyter, Streamlit or training, not all).
-- Use YOLO inference at `imgsz=640` or `416` and batch size `1`.
-- Resize very large phone photos before processing (e.g. max width 1280).
-- Keep `device="cpu"`; never try to force CUDA.
-- Close unused browser tabs; Chromium-based browsers can use >1 GB.
-- The machine already swaps heavily under load; expect slower first runs
-  while Python imports PyTorch and Ultralytics.
-
----
-
-## 8. Troubleshooting
-
-| Problem | Fix |
-| --- | --- |
-| `conda: command not found` | `source ~/anaconda3/etc/profile.d/conda.sh` |
-| Conda plugin warnings | Pre-existing, harmless; do not modify `base` to fix them |
-| `torch.cuda.is_available()` is `True` | Wrong wheel installed; reinstall with `pip install -r requirements.txt` |
-| `ModuleNotFoundError: src` | Run commands from the project root, or use the provided app/test entry points |
-| `libGL.so.1: cannot open shared object file` | System OpenGL library is missing; OpenCV GUI features need it (ask before using `sudo`) |
-| Detection says model not found | Put weights at `models/plate_detector.pt`; nothing is downloaded automatically |
-| OCR says no recogniser | Pass `recognizer=<callable>` to `PlateOCR` |
-
-If an install fails, read the **last 30 lines** of the pip output first.
-Most failures are network timeouts, a full disk, or a version conflict.
+<p align="center">
+Built by <a href="https://github.com/mohamedait-abbou">@mohamedait-abbou</a>
+</p>
