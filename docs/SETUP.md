@@ -155,19 +155,71 @@ streamlit run app/app.py
 Then open <http://localhost:8501> and upload a vehicle photo. Image preview
 and preprocessing work immediately; detection needs model weights (below).
 
+On the very first launch, Streamlit may ask for an email address in the
+terminal. Leave it blank and press Enter, or create `~/.streamlit/credentials.toml`
+with these two lines to skip the prompt on every machine:
+
+```toml
+[general]
+email = ""
+```
+
 ---
 
-## 5. Adding AI models (manual step)
+## 5. Dataset, models and manual steps
+
+The dataset is not committed. If you have the original archive on disk,
+extract it under `data/raw/data_car/`, then prepare the YOLO layout:
+
+```bash
+python scripts/prepare_dataset.py --dry-run   # validate only
+python scripts/prepare_dataset.py             # copy into data/raw/plates/
+python scripts/make_colab_bundle.py           # build plates_colab.zip
+```
+
+Expected result: 1,277 training and 319 validation image/label pairs, one
+class (`license_plate`). Both scripts print what they wrote.
 
 No model weights are included or downloaded automatically.
 
 ### Plate detector
 
-1. Train or obtain a YOLO model that detects licence plates.
-2. Copy the weights to `models/plate_detector.pt`.
-3. Pass the path in the app sidebar or to `PlateDetector(model_path=...)`.
+The trained checkpoint for this project was produced on a free Colab T4 GPU:
 
-The detector always runs on CPU and refuses `cuda` devices on purpose.
+1. In Colab, choose **Runtime -> Change runtime type -> T4 GPU**, then
+   `pip install ultralytics==8.3.253`.
+2. Upload `plates_colab.zip` (about 106 MB) to `/content`, unzip it, and point
+   `data.yaml` at the extracted `images/train` and `images/val` folders.
+3. Train for about 19 minutes:
+
+   ```python
+   from ultralytics import YOLO
+   model = YOLO("yolo11n.pt")
+   model.train(data="/content/plates/data.yaml", epochs=50, imgsz=640,
+               batch=16, device=0, patience=15, seed=42)
+   ```
+
+4. Validate with `model.val(data=...)`, then download the best checkpoint as
+   `plate_detector.pt` (found under `runs/smartpark/weights/best.pt`).
+5. Move the download into place:
+
+   ```bash
+   mkdir -p models
+   mv ~/Downloads/plate_detector.pt models/plate_detector.pt
+   ```
+
+6. Verify it on a real image before using the app:
+
+   ```bash
+   python scripts/verify_model.py
+   python scripts/verify_model.py --image path/to/car.jpg --confidence 0.25
+   ```
+
+The script prints each bounding box and confidence and saves the annotated
+image to `runs/local_check.jpg`. It exits with code 1 if nothing is detected.
+
+To reproduce training locally instead (slow on CPU), use the command in the
+README. The detector always runs on CPU and refuses `cuda` devices on purpose.
 
 ### OCR recogniser
 
@@ -233,8 +285,10 @@ git check-ignore -v .env
 | `torch.cuda.is_available()` is `True` | Wrong wheel installed; reinstall with `pip install -r requirements.txt` |
 | `ModuleNotFoundError: src` | Run commands from the project root, or use the provided app/test entry points |
 | `libGL.so.1: cannot open shared object file` | System OpenGL library is missing; OpenCV GUI features need it (ask before using `sudo`) |
+| Streamlit waits at `Email:` on first run | Leave blank and press Enter, or create `~/.streamlit/credentials.toml` as shown in section 4 |
 | Detection says model not found | Put weights at `models/plate_detector.pt`; nothing is downloaded automatically |
-| OCR says no recogniser | Pass `recognizer=<callable>` to `PlateOCR` |
+| `verify_model.py` finds no plate | Try `--confidence 0.10`, a different image, or check the box visually |
+| OCR says no recogniser | Expected: `PlateOCR` has no engine yet; pass `recognizer=<callable>` to `PlateOCR` |
 
 If an install fails, read the **last 30 lines** of the pip output first.
 Most failures are network timeouts, a full disk, or a version conflict.

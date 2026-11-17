@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640" font-family="DejaVu Sans, Arial, sans-serif">
+  <defs>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <clipPath id="leftClip"><rect x="282" y="284" width="332" height="176" rx="6"/></clipPath>
+    <clipPath id="rightClip"><rect x="640" y="284" width="332" height="176" rx="6"/></clipPath>
+  </defs>
+
+  <rect width="1000" height="640" fill="#ffffff"/>
+  <rect width="1000" height="8" fill="#ff4b4b"/>
+  <rect x="0" y="8" width="250" height="632" fill="#f0f2f6"/>
+  <line x1="250" y1="8" x2="250" y2="640" stroke="#e2e8f0"/>
+
+  <text x="24" y="56" font-size="18" font-weight="bold" fill="#0f172a">Settings</text>
+  <text x="24" y="102" font-size="12" fill="#334155">YOLO weights path</text>
+  <rect x="24" y="112" width="202" height="34" rx="5" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="34" y="134" font-size="11" font-family="monospace" fill="#334155">models/plate_detector.pt</text>
+
+  <text x="24" y="178" font-size="12" fill="#334155">Detection confidence</text>
+  <text x="204" y="178" font-size="12" font-weight="bold" fill="#0f172a">0.25</text>
+  <rect x="24" y="196" width="202" height="4" rx="2" fill="#cbd5e1"/>
+  <rect x="24" y="196" width="46" height="4" rx="2" fill="#ff4b4b"/>
+  <circle cx="70" cy="198" r="8" fill="#ff4b4b" stroke="#ffffff" stroke-width="2"/>
+  <text x="24" y="222" font-size="9" fill="#64748b">0.05</text>
+  <text x="204" y="222" font-size="9" fill="#64748b">0.95</text>
+
+  <rect x="24" y="248" width="16" height="16" rx="3" fill="#ff4b4b"/>
+  <path d="M27.5 256 l3.5 3.5 l6 -7" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <text x="50" y="261" font-size="12" fill="#0f172a">Run plate detection</text>
+  <rect x="24" y="282" width="16" height="16" rx="3" fill="#ffffff" stroke="#94a3b8"/>
+  <text x="50" y="295" font-size="12" fill="#0f172a">Run OCR</text>
+
+  <text x="282" y="58" font-size="28" font-weight="bold" fill="#0f172a">SmartPark Maroc</text>
+  <text x="282" y="82" font-size="12" fill="#64748b">AI-powered Moroccan parking management - licence-plate detection demo. CPU-only.</text>
+
+  <rect x="282" y="104" width="690" height="72" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="5 4"/>
+  <text x="302" y="132" font-size="13" font-weight="bold" fill="#334155">Upload a vehicle image</text>
+  <rect x="302" y="142" width="240" height="24" rx="5" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="312" y="158" font-size="10" fill="#334155">IMG-20200725-WA0049.jpg</text>
+  <text x="504" y="158" font-size="9" fill="#94a3b8">39.0 KB</text>
+
+  <rect x="282" y="192" width="690" height="36" rx="7" fill="#dcfce7"/>
+  <circle cx="302" cy="210" r="7" fill="#16a34a"/>
+  <path d="M298.5 210 l2.5 2.5 l4.5 -5" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <text x="318" y="215" font-size="13" font-weight="bold" fill="#14532d">Detected 1 plate(s).</text>
+
+  <rect x="282" y="246" width="332" height="218" rx="8" fill="#ffffff" filter="url(#cardShadow)"/>
+  <text x="296" y="272" font-size="14" font-weight="bold" fill="#0f172a">Original image</text>
+  <g clip-path="url(#leftClip)">
+    <rect x="282" y="284" width="332" height="176" fill="#dbeafe"/>
+    <path d="M282 420 h332" stroke="#93c5fd" stroke-width="2"/>
+    <rect x="312" y="350" width="272" height="58" rx="16" fill="#2563eb"/>
+    <path d="M356 350 l24 -30 h116 l28 30 z" fill="#3b82f6"/>
+    <path d="M368 348 l20 -24 h44 v24 z M444 324 h38 l22 24 h-60 z" fill="#bfdbfe"/>
+    <circle cx="372" cy="408" r="17" fill="#0f172a"/><circle cx="372" cy="408" r="7" fill="#94a3b8"/>
+    <circle cx="526" cy="408" r="17" fill="#0f172a"/><circle cx="526" cy="408" r="7" fill="#94a3b8"/>
+    <rect x="468" y="374" width="52" height="16" rx="3" fill="#fef08a" stroke="#22c55e" stroke-width="3"/>
+  </g>
+
+  <rect x="640" y="246" width="332" height="218" rx="8" fill="#ffffff" filter="url(#cardShadow)"/>
+  <text x="654" y="272" font-size="14" font-weight="bold" fill="#0f172a">Grayscale preprocessing</text>
+  <g clip-path="url(#rightClip)">
+    <rect x="640" y="284" width="332" height="176" fill="#e2e8f0"/>
+    <path d="M640 420 h332" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="670" y="350" width="272" height="58" rx="16" fill="#64748b"/>
+    <path d="M714 350 l24 -30 h116 l28 30 z" fill="#94a3b8"/>
+    <path d="M726 348 l20 -24 h44 v24 z M802 324 h38 l22 24 h-60 z" fill="#cbd5e1"/>
+    <circle cx="730" cy="408" r="17" fill="#1e293b"/><circle cx="730" cy="408" r="7" fill="#94a3b8"/>
+    <circle cx="884" cy="408" r="17" fill="#1e293b"/><circle cx="884" cy="408" r="7" fill="#94a3b8"/>
+    <rect x="826" y="374" width="52" height="16" rx="3" fill="#d4d4d8"/>
+  </g>
+
+  <text x="282" y="494" font-size="16" font-weight="bold" fill="#0f172a">Detections</text>
+  <rect x="282" y="506" width="690" height="38" rx="7" fill="#f8fafc" stroke="#cbd5e1"/>
+  <path d="M298 518 l6 6 l6 -6" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
+  <text x="320" y="531" font-size="13" font-weight="bold" fill="#0f172a">Plate 1 - confidence 0.87</text>
+  <rect x="282" y="548" width="690" height="76" rx="7" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="296" y="560" width="180" height="52" rx="5" fill="#fef08a" stroke="#22c55e" stroke-width="3"/>
+  <text x="310" y="592" font-size="16" font-family="monospace" fill="#334155" letter-spacing="2">AB-12345</text>
+  <text x="496" y="583" font-size="12" fill="#334155">Plate crop is ready for OCR.</text>
+  <text x="496" y="603" font-size="11" fill="#94a3b8">No recogniser is bundled yet (expected warning).</text>
+
+  <text x="282" y="628" font-size="10" fill="#94a3b8">UI illustration based on app/app.py - widgets, layout and messages match the demo.</text>
+</svg>
